@@ -40,9 +40,4 @@
       https-proxy={{proxy_env.https_proxy}}
       no-proxy={{proxy_env.no_proxy}}
 
-- name: post proxify package update/upgrade...
-  when: proxify_it and proxify_proxified|changed
-  become: yes
-  become_user: root
-  with_items: '{{proxify_pkg_update_cmds}}'
-  command: '{{item}}'
+
