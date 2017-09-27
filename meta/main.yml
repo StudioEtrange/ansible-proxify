@@ -1,22 +1,12 @@
 ---
 galaxy_info:
-  author: Andrew Rothstein
-  description: role for configuring http(s) network proxies
-  company: BlackRock
+  author: Sylvain.B / Andrew Rothstein's fork
+  description: role for configuring HTTP/FTP network proxies
+  company: StudioEtrange
   license:
     - MIT
   min_ansible_version: 2.0
   platforms:
-    - name: EL
-      versions:
-        - 7
-    - name: Fedora
-      versions:
-        - 23
-    - name: Ubuntu
-      versions:
-        - xenial
   galaxy_tags:
     - networking
 dependencies: []
-  

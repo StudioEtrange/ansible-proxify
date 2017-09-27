@@ -8,7 +8,7 @@
 
 - name: include package manager specific vars
   include_vars: "{{proxify_pkg_mgr}}.yml"
-    
+
 - name: templated environment stuffs
   become: yes
   become_user: root
@@ -24,5 +24,3 @@
     src: '{{item}}.j2'
     dest: /{{item}}
     mode: '0644'
-
-
