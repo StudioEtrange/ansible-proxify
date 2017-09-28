@@ -9,6 +9,8 @@
 - name: include package manager specific vars
   include_vars: "{{proxify_pkg_mgr}}.yml"
 
+
+
 - name: templated environment stuffs
   become: yes
   become_user: root
@@ -24,3 +26,68 @@
     src: '{{item}}.j2'
     dest: /{{item}}
     mode: '0644'
+
+- debug:
+    msg: "{{ inventory_hostname }} -- Init system : {{ ansible_service_mgr }}"
+
+- name: upstart or sysvinit or unknown init system -- manage docker daemon proxy conf file
+  become: yes
+  become_user: root
+  blockinfile:
+    path: /etc/default/docker
+    create: yes
+    mode: '0644'
+    block: |
+      export http_proxy="{{ proxy_env.http_proxy }}"
+      export HTTP_PROXY="{{ proxy_env.http_proxy }}"
+      export https_proxy="{{ proxy_env.https_proxy }}"
+      export HTTPS_PROXY="{{ proxy_env.https_proxy }}"
+      export no_proxy="{{ proxy_env.no_proxy }}"
+      export NO_PROXY="{{ proxy_env.no_proxy }}"
+  when:
+    - proxify_it
+    - proxify_dockerd
+    - ansible_service_mgr == "upstart" or ansible_service_mgr == "sysvinit" or ansible_service_mgr == "service"
+  notify:
+    - restart docker
+  tags:
+    - docker
+
+- name: systemd init system -- manage docker daemon proxy conf folder
+  become: yes
+  become_user: root
+  file:
+    dest: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    - proxify_it
+    - proxify_dockerd
+    - ansible_service_mgr == "systemd"
+  tags:
+    - docker
+
+- name: systemd init system -- manage docker daemon proxy conf file
+  copy:
+    content: |
+      [Service]
+      Environment="HTTP_PROXY={{ proxy_env.http_proxy }}"
+      Environment="HTTPS_PROXY={{ proxy_env.https_proxy }}"
+      Environment="NO_PROXY={{ proxy_env.no_proxy }}"
+    dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    - proxify_it
+    - proxify_dockerd
+    - ansible_service_mgr == "systemd"
+  notify:
+    - reload unit
+    - restart docker
+  tags:
+    - docker
+
+- meta: flush_handlers

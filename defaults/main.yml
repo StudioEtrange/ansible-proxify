@@ -2,6 +2,9 @@
 # defaults file for proxify in seconds
 proxify_dl_timeout : 300
 
+# do we allow to set proxy for docker daemon
+proxify_dockerd : false
+
 #http_proxy_scheme : http
 #http_proxy_hostname : http-proxy.example.com
 #http_proxy_port : 3128
